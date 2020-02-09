@@ -10,7 +10,6 @@ def wrap_function(function,args):
 def _minimize_neldermead(func,x0,args=(),callback=None,
                          maxiter=400,
                          xatol=1e-4,fatol=1e-4):
-    fcalls,func = wrap_function(func,args)
     alpha = 1
     chi = 2
     beta = 0.5
@@ -36,7 +35,7 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
             y[k] = zdelt
         sim[k + 1] = y
 
-    allvecs = [sim[0]]
+    allvecs = [sim,]
 
     one2np1 = list(range(1,N + 1))
     fsim = np.zeros((N + 1,),float)
@@ -111,7 +110,7 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
         sim = np.take(sim,ind,0)
         fsim = np.take(fsim,ind,0)
         iterations += 1
-        allvecs.append(sim[0])
+        allvecs.append(sim)
 
     x = sim[0]
     fval = np.min(fsim)
@@ -123,4 +122,4 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
     # if retall:
     #     result['allvecs'] = allvecs
     # return result
-    return x,allvecs
+    return x, allvecs
