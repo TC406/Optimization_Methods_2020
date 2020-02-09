@@ -11,8 +11,8 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
                          maxiter=400,
                          xatol=1e-4,fatol=1e-4):
     alpha = 1
-    chi = 2
-    beta = 0.5
+    gamma = 0.5
+    beta = 2
     sigma = 0.5
 
     nonzdelt = 0.05
@@ -60,13 +60,13 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
         x_c = np.add.reduce(sim[:-1],0) / N
         # xr - Reflection.
         # sim[-1] - highest value
-        x_r = (1 + alpha) * x_c - alpha * sim[-1]
+        x_r =  x_c + alpha * (x_c - sim[-1])
         fxr = func(x_r)
         doshrink = 0
         # If new point xr is better than lowest value
         if fxr < fsim[0]:
             # Expansion case 4a
-            x_e = (1 + alpha * chi) * x_c - alpha * chi * sim[-1]
+            x_e = x_c + gamma *( x_r - x_c )
             fxe = func(x_e)
 
             if fxe < fxr:
@@ -82,22 +82,22 @@ def _minimize_neldermead(func,x0,args=(),callback=None,
             else:  # fxr >= fsim[-2] 4c
                 # Perform contraction
                 if fxr < fsim[-1]:
-                    xc = (1 + beta * alpha) * x_c - beta * alpha * sim[-1]
-                    fxc = func(xc)
+                    x_s = x_c + beta * (sim[-1] - x_c)
+                    fxs = func(x_s)
 
-                    if fxc <= fxr:
-                        sim[-1] = xc
-                        fsim[-1] = fxc
+                    if fxs <= fxr:
+                        sim[-1] = x_s
+                        fsim[-1] = fxs
                     else:
                         doshrink = 1
                 else:  # 4d
                     # Perform an inside contraction
-                    xcc = (1 - beta) * x_c + beta * sim[-1]
-                    fxcc = func(xcc)
+                    x_ss = x_c + beta * (sim[-1] - x_c)
+                    fxss = func(x_ss)
 
-                    if fxcc < fsim[-1]:  # 6
-                        sim[-1] = xcc
-                        fsim[-1] = fxcc
+                    if fxss < fsim[-1]:  # 6
+                        sim[-1] = x_ss
+                        fsim[-1] = fxss
                     else:
                         doshrink = 1
 
